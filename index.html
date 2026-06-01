@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CUBE Your Question — Aboriginal Agriculture</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; font-size: 15px; color: #1a1a1a; background: #f5f4f0; padding: 1.5rem; }
+  .cube-container { max-width: 720px; margin: 0 auto; }
+  h1 { font-size: 20px; font-weight: 600; margin-bottom: 0.25rem; color: #1a1a1a; }
+  .subtitle { font-size: 13px; color: #666; margin-bottom: 1.5rem; }
+  .progress-bar { display: flex; gap: 6px; margin-bottom: 1.5rem; }
+  .progress-step { flex: 1; height: 5px; border-radius: 3px; background: #ddd; transition: background 0.3s; }
+  .progress-step.done { background: #1D9E75; }
+  .progress-step.active { background: #7F77DD; }
+  .step-card { background: #fff; border: 1px solid #e0ddd6; border-radius: 12px; padding: 1.5rem; margin-bottom: 1rem; }
+  .step-label { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; padding: 4px 12px; margin-bottom: 1rem; }
+  .step-label.circle { background: #FAECE7; color: #993C1D; border: 2px solid #D85A30; border-radius: 20px; }
+  .step-label.underline { background: #E6F1FB; color: #0C447C; border-bottom: 2px solid #185FA5; }
+  .step-label.box { background: #EAF3DE; color: #3B6D11; border: 2px solid #639922; border-radius: 4px; }
+  .step-label.elaborate { background: #FAEEDA; color: #633806; border: 2px dashed #BA7517; border-radius: 4px; }
+  .step-title { font-size: 17px; font-weight: 600; margin: 0 0 0.4rem; color: #1a1a1a; }
+  .step-instruction { color: #555; font-size: 14px; margin: 0 0 1.25rem; line-height: 1.6; }
+  .question-box { background: #f5f4f0; border-left: 3px solid #7F77DD; border-radius: 0 8px 8px 0; padding: 1rem 1.25rem; margin-bottom: 1.5rem; font-style: italic; line-height: 1.7; color: #1a1a1a; font-size: 14px; }
+  .highlight-verb { background: #FAECE7; color: #993C1D; border: 1.5px solid #D85A30; border-radius: 4px; padding: 1px 6px; font-style: normal; font-weight: 600; }
+  .highlight-key { border-bottom: 2px solid #185FA5; color: #1a1a1a; font-style: normal; font-weight: 600; }
+  .highlight-box-word { border: 2px solid #639922; border-radius: 4px; padding: 1px 6px; font-style: normal; font-weight: 600; }
+  .chips-grid { margin: 0.75rem 0; display: flex; flex-wrap: wrap; gap: 6px; }
+  .answer-chip { display: inline-block; background: #f5f4f0; border: 1px solid #ccc; border-radius: 20px; padding: 7px 14px; font-size: 13px; cursor: pointer; transition: all 0.15s; color: #1a1a1a; user-select: none; }
+  .answer-chip:hover { background: #eceae4; border-color: #aaa; }
+  .answer-chip.selected { background: #EEEDFE; border-color: #7F77DD; color: #3C3489; font-weight: 600; }
+  .answer-chip.matched { background: #EAF3DE; border-color: #639922; color: #3B6D11; font-weight: 600; cursor: default; }
+  .answer-chip.chip-block { display: block; margin: 0 0 6px; border-radius: 8px; }
+  .feedback { border-radius: 8px; padding: 0.75rem 1rem; font-size: 14px; margin-top: 1rem; line-height: 1.6; }
+  .feedback.correct { background: #EAF3DE; color: #3B6D11; border: 1px solid #97C459; }
+  .feedback.hint { background: #FAEEDA; color: #633806; border: 1px solid #EF9F27; }
+  .nav-row { display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem; gap: 12px; flex-wrap: wrap; }
+  .btn-back { background: #fff; color: #555; border: 1px solid #ccc; border-radius: 8px; padding: 8px 18px; font-size: 14px; cursor: pointer; }
+  .btn-back:hover { background: #f5f4f0; }
+  .btn-primary { background: #7F77DD; color: #fff; border: none; border-radius: 8px; padding: 9px 22px; font-size: 14px; cursor: pointer; font-weight: 600; transition: opacity 0.15s; }
+  .btn-primary:hover { opacity: 0.85; }
+  .step-counter { font-size: 13px; color: #888; }
+  .match-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 1rem; }
+  .match-col-label { font-size: 12px; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 8px; }
+  .summary-block { border: 1px solid #e0ddd6; border-radius: 8px; padding: 1rem 1.25rem; margin-bottom: 0.75rem; }
+  .summary-label { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: #888; margin-bottom: 0.4rem; }
+  .summary-content { font-size: 14px; line-height: 1.6; color: #1a1a1a; }
+  .elaborate-point { background: #f5f4f0; border-radius: 8px; padding: 0.75rem 1rem; margin-bottom: 0.5rem; font-size: 14px; line-height: 1.6; }
+  .point-num { display: inline-block; background: #EEEDFE; color: #3C3489; border-radius: 50%; width: 22px; height: 22px; text-align: center; line-height: 22px; font-size: 12px; font-weight: 600; margin-right: 8px; }
+  .complete-badge { background: #EAF3DE; color: #3B6D11; border: 1px solid #97C459; border-radius: 20px; padding: 3px 10px; font-size: 12px; font-weight: 600; margin-left: 10px; }
+  @media (max-width: 500px) {
+    .match-grid { grid-template-columns: 1fr; }
+    body { padding: 1rem; }
+  }
+</style>
+</head>
+<body>
+<div class="cube-container">
+  <h1>CUBE your question</h1>
+  <p class="subtitle">Work through each step to scaffold your answer about Indigenous Australian land management.</p>
+  <div class="progress-bar" id="progress"></div>
+  <div id="steps-container"></div>
+</div>
+
+<script>
+const question = "Explain how the cultural bias of western/European people in Australia influenced their ability to understand and appreciate the role of Indigenous Australians in the management of the Australian landscape.";
+
+const steps = [
+  {
+    id: "circle",
+    letter: "C",
+    labelClass: "circle",
+    labelText: "Circle — the verb",
+    title: "What are you being asked to DO?",
+    instruction: "The verb tells you HOW to write your answer. Read the question and find the key doing word.",
+    type: "chip",
+    chips: ["Describe", "Explain", "Evaluate", "Summarise", "Compare", "Identify"],
+    correct: "Explain",
+    correctFeedback: "Correct! 'Explain' means you need to show HOW and WHY — cause and effect. Go beyond just describing what happened.",
+    hintFeedback: "Look again — not 'describe' (just facts) or 'evaluate' (make a judgement). 'Explain' asks for reasons and connections between ideas."
+  },
+  {
+    id: "underline",
+    letter: "U",
+    labelClass: "underline",
+    labelText: "Underline — key topic words",
+    title: "What is the question ABOUT?",
+    instruction: "These are the main concepts you must address in your answer. Select all the key topic words from the question.",
+    type: "multichip",
+    chips: ["cultural bias", "western/European people", "influenced", "ability to understand", "appreciate", "role of Indigenous Australians", "management", "Australian landscape", "food sources", "trade routes"],
+    correct: ["cultural bias", "western/European people", "influenced", "ability to understand", "appreciate", "role of Indigenous Australians", "management", "Australian landscape"],
+    correctFeedback: "Well done! These are the concepts your answer must address. Notice both 'understand' AND 'appreciate' — that means both knowledge and respect.",
+    hintFeedback: "'Food sources' and 'trade routes' are not in the question. Make sure you have selected all eight key terms from the actual question text."
+  },
+  {
+    id: "box",
+    letter: "B",
+    labelClass: "box",
+    labelText: "Box — important details",
+    title: "What extra detail does the question demand?",
+    instruction: "Boxed words are qualifiers that shape your answer. Select all the statements that are TRUE about this question's hidden requirements.",
+    type: "multichip",
+    chips: [
+      "You must address TWO things: understanding AND appreciation",
+      "The bias is described as 'cultural' — not just ignorance",
+      "'Management' is an active word — not passive occupation",
+      "You only need to discuss one explorer's journal",
+      "The question is about bias in both the past and present",
+      "The landscape being 'Australian' matters — it's a specific context"
+    ],
+    correct: [
+      "You must address TWO things: understanding AND appreciation",
+      "The bias is described as 'cultural' — not just ignorance",
+      "'Management' is an active word — not passive occupation",
+      "The landscape being 'Australian' matters — it's a specific context"
+    ],
+    correctFeedback: "Great analysis! The question is past-focused, and you can use multiple examples. Those four points will lift your answer above a basic response.",
+    hintFeedback: "The question is specifically about Australia's past. You can also use multiple explorer examples, not just one."
+  },
+  {
+    id: "elaborate",
+    letter: "E",
+    labelClass: "elaborate",
+    labelText: "Elaborate — evidence & examples",
+    title: "Match each claim to its evidence",
+    instruction: "Tap a claim on the left, then tap the matching evidence on the right. All four pairs are from the ABC article.",
+    type: "match",
+    pairs: [
+      {
+        claim: "Europeans couldn't see farming because it didn't look like theirs",
+        evidence: "Mitchell saw 'ground broken by the hoe' and nine miles of cut grass — but settlers dismissed it"
+      },
+      {
+        claim: "Terra nullius meant Europeans were motivated NOT to recognise land management",
+        evidence: "Recognising Aboriginal agriculture would have challenged the legal basis for taking the land"
+      },
+      {
+        claim: "Fire-stick farming was a sophisticated technique — not random burning",
+        evidence: "Gammage: fire created grass for kangaroos next to shelter, then burning lured animals for easier harvest"
+      },
+      {
+        claim: "Aquaculture shows complex, large-scale engineering",
+        evidence: "Builth mapped 100km² of man-made channels and wetlands at Lake Condah, dated 6,000+ years old"
+      }
+    ]
+  }
+];
+
+let current = 0;
+let userAnswers = {};
+let matchState = {};
+
+function renderProgress() {
+  const bar = document.getElementById('progress');
+  bar.innerHTML = steps.map((s, i) =>
+    `<div class="progress-step ${i < current ? 'done' : i === current ? 'active' : ''}"></div>`
+  ).join('') + (current >= steps.length ? steps.map(() => `<div class="progress-step done"></div>`).join('') : '');
+}
+
+function highlightQuestion(stepId) {
+  let q = question;
+  if (stepId === 'circle') {
+    q = q.replace('Explain', '<span class="highlight-verb">Explain</span>');
+  } else if (stepId === 'underline') {
+    ['cultural bias','western/European people','influenced','ability to understand and appreciate','role of Indigenous Australians','management','Australian landscape'].forEach(t => {
+      q = q.replace(t, `<span class="highlight-key">${t}</span>`);
+    });
+  } else if (stepId === 'box') {
+    q = q.replace('Explain', '<span class="highlight-verb">Explain</span>');
+    q = q.replace('cultural bias', '<span class="highlight-box-word">cultural bias</span>');
+    q = q.replace('understand and appreciate', '<span class="highlight-box-word">understand and appreciate</span>');
+    q = q.replace('management', '<span class="highlight-box-word">management</span>');
+  } else if (stepId === 'elaborate') {
+    q = q.replace('Explain', '<span class="highlight-verb">Explain</span>');
+    q = q.replace('cultural bias of western/European people in Australia', '<span class="highlight-key">cultural bias of western/European people in Australia</span>');
+    q = q.replace('understand and appreciate', '<span class="highlight-key">understand and appreciate</span>');
+    q = q.replace('management of the Australian landscape', '<span class="highlight-key">management of the Australian landscape</span>');
+  }
+  return q;
+}
+
+function renderStep(idx) {
+  if (idx >= steps.length) { renderSummary(); return; }
+  const s = steps[idx];
+  renderProgress();
+  const container = document.getElementById('steps-container');
+  let interactionHTML = '';
+
+  if (s.type === 'chip') {
+    const selected = userAnswers[s.id] || '';
+    interactionHTML = `<div class="chips-grid">${s.chips.map(c =>
+      `<span class="answer-chip${selected === c ? ' selected' : ''}" onclick="selectChip('${s.id}','${c}',this)">${c}</span>`
+    ).join('')}</div>`;
+  } else if (s.type === 'multichip') {
+    const selected = userAnswers[s.id] || [];
+    interactionHTML = `<p style="font-size:13px;color:#888;margin:0 0 8px;">Select all that apply</p><div class="chips-grid">${s.chips.map(c =>
+      `<span class="answer-chip${selected.includes(c) ? ' selected' : ''}" onclick="toggleChip('${s.id}','${encodeURIComponent(c)}',this)">${c}</span>`
+    ).join('')}</div>`;
+  } else if (s.type === 'match') {
+    if (!matchState[s.id]) matchState[s.id] = { selected: null, matched: {} };
+    const ms = matchState[s.id];
+    interactionHTML = `<div class="match-grid">
+      <div>
+        <div class="match-col-label">Claims</div>
+        ${s.pairs.map((p,i) => {
+          const isMatched = ms.matched[i] !== undefined;
+          const isSel = ms.selected === 'claim-'+i;
+          return `<div class="answer-chip chip-block${isMatched ? ' matched' : isSel ? ' selected' : ''}" onclick="${isMatched ? '' : `matchClick('claim-${i}','${s.id}')`}">${isMatched ? '✓ ' : ''}${p.claim}</div>`;
+        }).join('')}
+      </div>
+      <div>
+        <div class="match-col-label">Evidence</div>
+        ${s.pairs.map((p,i) => {
+          const matchedByIdx = Object.values(ms.matched).indexOf(i);
+          const isMatched = matchedByIdx !== -1;
+          const isSel = ms.selected === 'evidence-'+i;
+          return `<div class="answer-chip chip-block${isMatched ? ' matched' : isSel ? ' selected' : ''}" onclick="${isMatched ? '' : `matchClick('evidence-${i}','${s.id}')`}">${isMatched ? '✓ ' : ''}${p.evidence}</div>`;
+        }).join('')}
+      </div>
+    </div>
+    <div id="match-feedback-${s.id}"></div>`;
+  }
+
+  const feedbackHTML = userAnswers[s.id+'_feedback']
+    ? `<div class="feedback ${userAnswers[s.id+'_correct'] ? 'correct' : 'hint'}">${userAnswers[s.id+'_correct'] ? '✓ ' : '💡 '}${userAnswers[s.id+'_correct'] ? s.correctFeedback : s.hintFeedback}</div>`
+    : '';
+
+  const isLast = idx === steps.length - 1;
+  const matchDone = s.type === 'match' && Object.keys((matchState[s.id]||{matched:{}}).matched).length === (s.pairs||[]).length;
+  const showCheck = s.type !== 'match' && !userAnswers[s.id+'_feedback'];
+  const showNext = userAnswers[s.id+'_feedback'] || matchDone;
+
+  container.innerHTML = `
+    <div class="step-card">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1rem;flex-wrap:wrap;gap:8px;">
+        <span class="step-label ${s.labelClass}">${s.letter} — ${s.labelText}</span>
+        <span class="step-counter">Step ${idx+1} of ${steps.length}</span>
+      </div>
+      <div class="question-box">${highlightQuestion(s.id)}</div>
+      <h2 class="step-title">${s.title}</h2>
+      <p class="step-instruction">${s.instruction}</p>
+      ${interactionHTML}
+      ${feedbackHTML}
+      <div class="nav-row">
+        ${idx > 0 ? `<button class="btn-back" onclick="goBack()">← Back</button>` : `<span></span>`}
+        <div style="display:flex;gap:8px;">
+          ${showCheck ? `<button class="btn-primary" onclick="checkAnswer('${s.id}')">Check ✓</button>` : ''}
+          ${showNext ? `<button class="btn-primary" onclick="nextStep()">${isLast ? 'See full scaffold →' : 'Next →'}</button>` : ''}
+        </div>
+      </div>
+    </div>`;
+}
+
+function selectChip(stepId, val, el) {
+  userAnswers[stepId] = val;
+  document.querySelectorAll('.answer-chip').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+function toggleChip(stepId, valEnc, el) {
+  const val = decodeURIComponent(valEnc);
+  if (!userAnswers[stepId]) userAnswers[stepId] = [];
+  const arr = userAnswers[stepId];
+  const i = arr.indexOf(val);
+  if (i === -1) arr.push(val); else arr.splice(i, 1);
+  el.classList.toggle('selected');
+}
+
+function matchClick(id, stepId) {
+  const ms = matchState[stepId];
+  if (!ms) return;
+  const parts = id.split('-');
+  const type = parts[0];
+  const idx = parseInt(parts[1]);
+  if (type === 'claim' && ms.matched[idx] !== undefined) return;
+  if (type === 'evidence' && Object.values(ms.matched).includes(idx)) return;
+  if (!ms.selected) { ms.selected = id; renderStep(current); return; }
+  const prevParts = ms.selected.split('-');
+  const prevType = prevParts[0];
+  const prevIdx = parseInt(prevParts[1]);
+  if (type === prevType) { ms.selected = id; renderStep(current); return; }
+  const claimIdx = type === 'claim' ? idx : prevIdx;
+  const evidenceIdx = type === 'evidence' ? idx : prevIdx;
+  const isCorrect = claimIdx === evidenceIdx;
+  ms.selected = null;
+  const fb = document.getElementById('match-feedback-'+stepId);
+  if (isCorrect) {
+    ms.matched[claimIdx] = evidenceIdx;
+    if (fb) fb.innerHTML = `<div class="feedback correct">✓ Correct match!</div>`;
+  } else {
+    if (fb) fb.innerHTML = `<div class="feedback hint">💡 Not quite — try again. Think about which claim that evidence most directly supports.</div>`;
+  }
+  if (Object.keys(ms.matched).length === steps[current].pairs.length) {
+    userAnswers[stepId+'_feedback'] = true;
+    userAnswers[stepId+'_correct'] = true;
+  }
+  renderStep(current);
+}
+
+function checkAnswer(stepId) {
+  const s = steps[current];
+  let correct = false;
+  if (s.type === 'chip') {
+    correct = userAnswers[stepId] === s.correct;
+  } else if (s.type === 'multichip') {
+    const sel = userAnswers[stepId] || [];
+    correct = s.correct.every(c => sel.includes(c)) && sel.every(c => s.correct.includes(c));
+  }
+  userAnswers[stepId+'_feedback'] = true;
+  userAnswers[stepId+'_correct'] = correct;
+  renderStep(current);
+}
+
+function nextStep() {
+  current++;
+  if (current >= steps.length) { renderSummary(); return; }
+  renderStep(current);
+}
+
+function goBack() {
+  if (current > 0) { current--; renderStep(current); }
+}
+
+function renderSummary() {
+  document.getElementById('progress').innerHTML = steps.map(() => `<div class="progress-step done"></div>`).join('');
+  const container = document.getElementById('steps-container');
+  container.innerHTML = `
+    <div class="step-card">
+      <div style="display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:1.25rem;">
+        <h2 style="font-size:20px;font-weight:600;color:#1a1a1a;">Your CUBE scaffold</h2>
+        <span class="complete-badge">✓ Complete</span>
+      </div>
+      <div class="summary-block">
+        <div class="summary-label">C — Verb: how to write</div>
+        <div class="summary-content"><strong>Explain</strong> — give reasons and show cause and effect. HOW and WHY did cultural bias prevent understanding and appreciation?</div>
+      </div>
+      <div class="summary-block">
+        <div class="summary-label">U — Key topics: what to cover</div>
+        <div class="summary-content">Cultural bias · Western/European settlers · How bias <em>influenced</em> them · Understanding AND appreciation · Role of Indigenous Australians · Active management · Australian landscape</div>
+      </div>
+      <div class="summary-block">
+        <div class="summary-label">B — Important details</div>
+        <div class="summary-content">Address both <em>understanding</em> (knowledge) and <em>appreciation</em> (respect). The bias was <em>cultural</em> — a deeply held belief system, not just ignorance. <em>Management</em> is an active, skilled term that implies intentional, organised work.</div>
+      </div>
+      <div class="summary-block">
+        <div class="summary-label">E — Evidence: 4 body points</div>
+        <div class="elaborate-point"><span class="point-num">1</span><strong>Eurocentric definition of farming:</strong> Europeans couldn't recognise Aboriginal farming because it didn't match their own model — even when Mitchell saw cut grass and turned soil, settlers dismissed it.</div>
+        <div class="elaborate-point"><span class="point-num">2</span><strong>Terra nullius motivation:</strong> Settlers were motivated NOT to see land management — recognising it would have challenged the legal right to take the land.</div>
+        <div class="elaborate-point"><span class="point-num">3</span><strong>Fire-stick farming misunderstood:</strong> Gammage showed fire was a sophisticated, intentional system — but Europeans saw only "burning," not skilled land management.</div>
+        <div class="elaborate-point"><span class="point-num">4</span><strong>Aquaculture ignored:</strong> Builth's 100km² system of channels and wetlands at Lake Condah (6,000+ years old) was entirely overlooked as engineering and agriculture.</div>
+      </div>
+      <div style="margin-top:1.5rem;">
+        <button class="btn-primary" onclick="resetAll()">Start again ↺</button>
+      </div>
+    </div>`;
+}
+
+function resetAll() {
+  current = 0; userAnswers = {}; matchState = {};
+  renderStep(0);
+}
+
+renderStep(0);
+</script>
+</body>
+</html>
